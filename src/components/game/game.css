@@ -124,3 +124,13 @@
 .btn_rules:hover{
     transform: scale(1.1);
 }
+
+.modal_rules{
+    border-radius: 15px;
+}
+
+.nav_rules{
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+}
