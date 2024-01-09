@@ -1,102 +1,116 @@
-import logo from "../images/logo.svg";
 import "./game.css";
-import paper from "../images/icon-paper.svg";
-import scissors from "../images/icon-scissors.svg";
-import rock from "../images/icon-rock.svg";
-import triangle from "../images/bg-triangle.svg";
-import Modal from "react-modal";
-import close_btn_icon from "../images/icon-close.svg";
-import img_rules from "../images/image-rules.svg";
-import React from "react";
+import rockIcon from "../images/icon-rock.svg";
+import paperIcon from "../images/icon-paper.svg";
+import scissorsIcon from "../images/icon-scissors.svg";
+import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction } from "react";
 
-const customStyleModal = {
-  content: {
-    top: "50%",
-    left: "50%",
-    right: "auto",
-    bottom: "auto",
-    marginRight: "-50%",
-    transform: "translate(-50%, -50%)",
-  },
-};
+interface GameProps {
+  playerChoice: string | null;
+  computerChoice: string | null;
+  setPlayerChoice: Dispatch<SetStateAction<string | null>>;
+  setComputerChoice: Dispatch<SetStateAction<string | null>>;
+  onPlayAgain: () => void;
+}
 
-// Modal.setAppElement()
+export default function Game({
+  playerChoice,
+  computerChoice,
+  setPlayerChoice,
+  setComputerChoice,
+  onPlayAgain,
+}: GameProps) {
+  const [showResult, setShowResult] = useState(false);
+  const [result, setResult] = useState("");
 
-export default function Game() {
-  const [modalIsOpen, setIsOpen] = React.useState(false);
+  useEffect(() => {
+    if (playerChoice && computerChoice) {
+      if (playerChoice === computerChoice) {
+        setResult("It's a Tie!");
+      } else if (
+        (playerChoice === "rock" && computerChoice === "scissors") ||
+        (playerChoice === "paper" && computerChoice === "rock") ||
+        (playerChoice === "scissors" && computerChoice === "paper")
+      ) {
+        setResult("YOU WIN");
+      } else {
+        setResult("YOU LOSE");
+      }
+      setShowResult(true);
+    }
+  }, [playerChoice, computerChoice]);
 
-  function OpenModalRules() {
-    setIsOpen(true);
-  }
+  const handlePlayAgain = () => {
+    setShowResult(false);
+    setPlayerChoice(null);
+    setComputerChoice(null);
+    onPlayAgain();
+    setResult("");
+  };
 
-  function closeModal() {
-    setIsOpen(false);
-  }
+  const getImageSource = (choice: string): string => {
+    switch (choice) {
+      case "rock":
+        return rockIcon;
+      case "paper":
+        return paperIcon;
+      case "scissors":
+        return scissorsIcon;
+      default:
+        return "";
+    }
+  };
 
   return (
-    <div className="container">
-      <div className="score_container">
-        <div className="logo">
-          <img src={logo} alt="logo" />
-        </div>
-
-        <div className="score">
-          <p>SCORE</p>
-          <h2>12</h2>
-        </div>
-      </div>
-
-      <div className="game">
-        <div className="paper">
-          <div className="circle_color_paper">
-            <div className="circle circle_paper">
-              <img className="img_paper" src={paper} alt="" />
+    <>
+      <div className="container_game">
+        <div className="container_picked">
+          <h1>YOU PICKED</h1>
+          <div className="you_picked">
+            <div className="circle_picked">
+              {playerChoice && (
+                <div className={`circle_game circle_${playerChoice}_game`}>
+                  <img
+                    className={`img_${playerChoice}`}
+                    src={getImageSource(playerChoice)}
+                    alt=""
+                  />
+                </div>
+              )}
             </div>
           </div>
         </div>
-        <div className="circle_color_scissors">
-          <div className="scissors">
-            <div className="circle circle_scissors">
-              <img className="img_scissors" src={scissors} alt="" />
+
+        <div className="container_result_game">
+          {showResult && (
+            <div className="result-box">
+              <p className={result === "You Lose!" ? "lose" : ""}>{result}</p>
+              <button
+                className={`btn_result ${result === "You Lose!" ? "lose" : ""}`}
+                onClick={handlePlayAgain}
+              >
+                Play Again
+              </button>
+            </div>
+          )}
+        </div>
+        <div className="container_hpicked">
+          <h1>THE HOUSE PICKED</h1>
+          <div className="house_picked">
+            <div className="circle_hpicked">
+              {computerChoice && (
+                <div className={`circle_game circle_${computerChoice}_game`}>
+                  <img
+                    className={`img_${computerChoice}`}
+                    src={getImageSource(computerChoice)}
+                    alt=""
+                  />
+                </div>
+              )}
             </div>
           </div>
         </div>
-        <div className="circle_color_rock">
-          <div className="rock">
-            <div className="circle circle_rock">
-              <img className="img_rock" src={rock} alt="" />
-            </div>
-          </div>
-        </div>
-        <div className="triangle">
-          <img src={triangle} alt="" />
-        </div>
       </div>
-
-      <div className="rules">
-        <button onClick={OpenModalRules} className="btn_rules">
-          RULES
-        </button>
-      </div>
-      <Modal
-        isOpen={modalIsOpen}
-        // onAfterOpen={afterOpdenModal}
-        onRequestClose={closeModal}
-        style={customStyleModal}
-      >
-        <div className="modal_rules">
-          <div className="nav_rules">
-            <h1>RULES</h1>
-            <button className="btn_rules" onClick={closeModal}>
-              <img className="img_close_rules" src={close_btn_icon} alt="btn close" />
-            </button>
-          </div>
-
-          <div className="img_rules">
-            <img src={img_rules} alt="img rules" />
-          </div>
-        </div>
-      </Modal>
-    </div>
+    </>
   );
 }
